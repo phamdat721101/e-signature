@@ -1,0 +1,12 @@
+<ion-content padding>
+  <ion-grid style="height: 100%">
+    <ion-row>
+      <img *ngIf="signature" [src]="signature">
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer>
+  <button ion-button large full (click)="getSignature()">Get signature</button>
+  <button ion-button large full (click)="getQR()">Get QR-Code</button>
+</ion-footer>
