@@ -177,7 +177,7 @@ var RestProvider = (function () {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
         headers.append("Accept", 'application/json');
         headers.append('Content-Type', 'application/json');
-        headers.append('Access-Control-Allow-Origin', '*');
+        headers.append('Access-Control-Allow-Origin', 'http://103.48.80.41:1323/');
         headers.append('Access-Control-Allow-Methods', 'POST');
         headers.append("Access-Control-Allow-Headers", "X-PINGOTHER, Origin, X-Requested-With, Content-Type, Accept, Cache-Control, Pragma");
         var options = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["d" /* RequestOptions */]({ headers: headers });

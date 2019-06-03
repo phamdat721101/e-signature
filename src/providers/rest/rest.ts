@@ -48,7 +48,7 @@ export class RestProvider {
     var headers = new Headers();
     headers.append("Accept", 'application/json');
     headers.append('Content-Type','application/json');
-    headers.append('Access-Control-Allow-Origin', '*');
+    headers.append('Access-Control-Allow-Origin', 'http://103.48.80.41:1323/');
     headers.append('Access-Control-Allow-Methods', 'POST');
     headers.append("Access-Control-Allow-Headers","X-PINGOTHER, Origin, X-Requested-With, Content-Type, Accept, Cache-Control, Pragma");
     const options = new RequestOptions({headers:headers});
