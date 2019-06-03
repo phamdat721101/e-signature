@@ -140,7 +140,7 @@ var RestProvider = (function () {
     function RestProvider(http, httpClient) {
         this.http = http;
         this.httpClient = httpClient;
-        this.basicURL = "http://localhost:7000";
+        this.basicURL = "http://103.48.80.41:7000";
         console.log('Hello RestProvider Provider');
     }
     RestProvider.prototype.getUsers = function () {
@@ -185,7 +185,7 @@ var RestProvider = (function () {
         //   "signature" : data
         // }
         console.log("THis is test", JSON.stringify(signature));
-        return this.http.post("http://localhost:1323/addSign", signature, options);
+        return this.http.post("http://103.48.80.41:1323/addSign", signature, options);
     };
     return RestProvider;
 }());
