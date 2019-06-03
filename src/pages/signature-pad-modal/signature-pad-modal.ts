@@ -15,6 +15,11 @@ export class SignaturePadModalPage {
   @ViewChild('pad', { read: ElementRef }) content: ElementRef;
   newSign : UserSignature = new UserSignature({})
   base64textString: string = "";
+  data = {
+    order_ID: null,
+    list_Order: null
+  };
+  imgOrder : string = "";
   // Initial sizes for the canvas
   private options = {
     'minWidth': 5,
@@ -36,11 +41,10 @@ export class SignaturePadModalPage {
   save() {
     // Get the image of the signature as a base64 encoded string
     const base64Img = this.signaturePad.toDataURL();
-    console.log(btoa(base64Img))
     this.base64textString = btoa(base64Img)
-    console.log(typeof(btoa(base64Img)))
     this.newSign.signature = btoa(base64Img)
-    console.log(typeof(this.newSign))
+    this.newSign.order_id = this.data.order_ID;
+    this.newSign.list_order = this.data.list_Order;
     this.restProvider.addsignature(this.newSign).subscribe(results =>{
       console.log(results);
     },err => {
@@ -50,9 +54,19 @@ export class SignaturePadModalPage {
     this.viewCtrl.dismiss({ signature: base64Img });
   }
 
+  changelistener(evt:any){
+    let image = evt.target.files[0];
+    if (image) {
+      var reader = new FileReader();
+      reader.onload = this._handleReaderLoaded.bind(this);
+      reader.readAsBinaryString(image);
+    }
+  }
+
   _handleReaderLoaded(readerEvt) {
     var binaryString = readerEvt.target.result;
-    this.base64textString = btoa(binaryString);
+    this.imgOrder = btoa(binaryString);
+    console.log(this.imgOrder);
   }
 
   cancel() {
@@ -63,5 +77,10 @@ export class SignaturePadModalPage {
 		this.restProvider.getUsers().then(data =>{
       console.log(data);
     })
+  }
+
+  logForm(){
+    console.log(this.data);
+    console.log(this.base64textString);
   }
 }

@@ -188,6 +188,11 @@ var SignaturePadModalPage = (function () {
         this.restProvider = restProvider;
         this.newSign = new __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__["a" /* UserSignature */]({});
         this.base64textString = "";
+        this.data = {
+            order_ID: null,
+            list_Order: null
+        };
+        this.imgOrder = "";
         // Initial sizes for the canvas
         this.options = {
             'minWidth': 5,
@@ -204,11 +209,10 @@ var SignaturePadModalPage = (function () {
     SignaturePadModalPage.prototype.save = function () {
         // Get the image of the signature as a base64 encoded string
         var base64Img = this.signaturePad.toDataURL();
-        console.log(btoa(base64Img));
         this.base64textString = btoa(base64Img);
-        console.log(typeof (btoa(base64Img)));
         this.newSign.signature = btoa(base64Img);
-        console.log(typeof (this.newSign));
+        this.newSign.order_id = this.data.order_ID;
+        this.newSign.list_order = this.data.list_Order;
         this.restProvider.addsignature(this.newSign).subscribe(function (results) {
             console.log(results);
         }, function (err) {
@@ -217,9 +221,18 @@ var SignaturePadModalPage = (function () {
         });
         this.viewCtrl.dismiss({ signature: base64Img });
     };
+    SignaturePadModalPage.prototype.changelistener = function (evt) {
+        var image = evt.target.files[0];
+        if (image) {
+            var reader = new FileReader();
+            reader.onload = this._handleReaderLoaded.bind(this);
+            reader.readAsBinaryString(image);
+        }
+    };
     SignaturePadModalPage.prototype._handleReaderLoaded = function (readerEvt) {
         var binaryString = readerEvt.target.result;
-        this.base64textString = btoa(binaryString);
+        this.imgOrder = btoa(binaryString);
+        console.log(this.imgOrder);
     };
     SignaturePadModalPage.prototype.cancel = function () {
         this.viewCtrl.dismiss({});
@@ -228,6 +241,10 @@ var SignaturePadModalPage = (function () {
         this.restProvider.getUsers().then(function (data) {
             console.log(data);
         });
+    };
+    SignaturePadModalPage.prototype.logForm = function () {
+        console.log(this.data);
+        console.log(this.base64textString);
     };
     return SignaturePadModalPage;
 }());
@@ -242,7 +259,7 @@ __decorate([
 SignaturePadModalPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* IonicPage */])(),
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-        selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <signature-pad [options]="options" name="signature"></signature-pad>\n\n  </div>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  <button ion-button large (click)="save()">Save signature</button>\n\n  <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n</ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
+        selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <form (ngSubmit)="logForm()">\n\n      <ion-item>\n\n        <ion-label>Todo</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Description</ion-label>\n\n        <ion-textarea [(ngModel)]="data.list_Order" name="description"></ion-textarea>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Upload File</ion-label>\n\n        <ion-input type="file" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>\n\n      </ion-item>\n\n      <signature-pad [options]="options" name="signature"></signature-pad>\n\n      <button ion-button type="submit" block>Add Todo</button>\n\n    </form>\n\n  </div>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  <button ion-button large (click)="save()">Save signature</button>\n\n  <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n</ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
     }),
     __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* ViewController */],
         __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__["a" /* RestProvider */]])
@@ -870,7 +887,9 @@ SignaturePad.prototype.toData = function () {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return UserSignature; });
 var UserSignature = (function () {
     function UserSignature(data) {
-        this.signature = data;
+        this.signature = data.signature;
+        this.list_order = data.list_order;
+        this.order_id = data.order_id;
     }
     return UserSignature;
 }());

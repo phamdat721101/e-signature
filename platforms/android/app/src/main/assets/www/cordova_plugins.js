@@ -1,11 +1,11 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
   module.exports = [
     {
-      "id": "phonegap-plugin-barcodescanner.BarcodeScanner",
-      "file": "plugins/phonegap-plugin-barcodescanner/www/barcodescanner.js",
-      "pluginId": "phonegap-plugin-barcodescanner",
+      "id": "cordova-plugin-device.device",
+      "file": "plugins/cordova-plugin-device/www/device.js",
+      "pluginId": "cordova-plugin-device",
       "clobbers": [
-        "cordova.plugins.barcodeScanner"
+        "device"
       ]
     },
     {
@@ -23,13 +23,12 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "ionic-plugin-keyboard.keyboard",
-      "file": "plugins/ionic-plugin-keyboard/www/android/keyboard.js",
-      "pluginId": "ionic-plugin-keyboard",
+      "id": "cordova-plugin-splashscreen.SplashScreen",
+      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+      "pluginId": "cordova-plugin-splashscreen",
       "clobbers": [
-        "cordova.plugins.Keyboard"
-      ],
-      "runs": true
+        "navigator.splashscreen"
+      ]
     },
     {
       "id": "cordova-plugin-statusbar.statusbar",
@@ -40,31 +39,32 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "cordova-plugin-device.device",
-      "file": "plugins/cordova-plugin-device/www/device.js",
-      "pluginId": "cordova-plugin-device",
+      "id": "ionic-plugin-keyboard.keyboard",
+      "file": "plugins/ionic-plugin-keyboard/www/android/keyboard.js",
+      "pluginId": "ionic-plugin-keyboard",
       "clobbers": [
-        "device"
-      ]
+        "cordova.plugins.Keyboard"
+      ],
+      "runs": true
     },
     {
-      "id": "cordova-plugin-splashscreen.SplashScreen",
-      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
-      "pluginId": "cordova-plugin-splashscreen",
+      "id": "phonegap-plugin-barcodescanner.BarcodeScanner",
+      "file": "plugins/phonegap-plugin-barcodescanner/www/barcodescanner.js",
+      "pluginId": "phonegap-plugin-barcodescanner",
       "clobbers": [
-        "navigator.splashscreen"
+        "cordova.plugins.barcodeScanner"
       ]
     }
   ];
   module.exports.metadata = {
-    "phonegap-plugin-barcodescanner": "8.0.1",
+    "cordova-plugin-console": "1.0.5",
+    "cordova-plugin-device": "1.1.4",
     "es6-promise-plugin": "4.2.2",
     "cordova-plugin-screen-orientation": "2.0.2",
-    "ionic-plugin-keyboard": "2.2.1",
-    "cordova-plugin-whitelist": "1.3.1",
-    "cordova-plugin-console": "1.0.5",
+    "cordova-plugin-splashscreen": "4.0.3",
     "cordova-plugin-statusbar": "2.2.2",
-    "cordova-plugin-device": "1.1.4",
-    "cordova-plugin-splashscreen": "4.0.3"
+    "cordova-plugin-whitelist": "1.3.1",
+    "ionic-plugin-keyboard": "2.2.1",
+    "phonegap-plugin-barcodescanner": "8.0.1"
   };
 });

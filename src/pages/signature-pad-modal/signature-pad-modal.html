@@ -1,6 +1,21 @@
 <ion-content>
   <div id="pad-container" #pad>
-    <signature-pad [options]="options" name="signature"></signature-pad>
+    <form (ngSubmit)="logForm()">
+      <ion-item>
+        <ion-label>Todo</ion-label>
+        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Description</ion-label>
+        <ion-textarea [(ngModel)]="data.list_Order" name="description"></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label>Upload File</ion-label>
+        <ion-input type="file" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>
+      </ion-item>
+      <signature-pad [options]="options" name="signature"></signature-pad>
+      <button ion-button type="submit" block>Add Todo</button>
+    </form>
   </div>
 </ion-content>
 
