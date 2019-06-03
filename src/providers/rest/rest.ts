@@ -56,7 +56,7 @@ export class RestProvider {
     //   "signature" : data
     // }
     console.log("THis is test",JSON.stringify(signature))
-    return this.http.post("http://103.48.80.41:1323/addSign",signature,options);
+    return this.http.post("https://103.48.80.41:1323/addSign",signature,options);
   }
 
 }
