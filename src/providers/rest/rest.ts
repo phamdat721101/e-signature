@@ -11,7 +11,7 @@ import { UserSignature } from '../models/sign.model';
 */
 @Injectable()
 export class RestProvider {
-  basicURL : string="http://103.48.80.41:7000";
+  basicURL : string="https://103.48.80.41:7000";
   constructor(public http: Http, public httpClient: HttpClient) {
     console.log('Hello RestProvider Provider');
   }
@@ -56,7 +56,7 @@ export class RestProvider {
     //   "signature" : data
     // }
     console.log("THis is test",JSON.stringify(signature))
-    return this.http.post("https://103.48.80.41:1323/addSign",signature,options);
+    return this.http.post("103.48.80.41:1323/addSign",signature,options);
   }
 
 }
