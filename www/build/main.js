@@ -148,7 +148,7 @@ var RestProvider = (function () {
     function RestProvider(http, httpClient) {
         this.http = http;
         this.httpClient = httpClient;
-        this.basicURL = "http://103.48.80.41:1323";
+        this.basicURL = "https://103.48.80.41:1323";
         console.log('Hello RestProvider Provider');
     }
     RestProvider.prototype.getSignature = function (order_id) {
