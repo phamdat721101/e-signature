@@ -1,4 +1,4 @@
-webpackJsonp([2],{
+webpackJsonp([3],{
 
 /***/ 183:
 /***/ (function(module, exports) {
@@ -23,11 +23,15 @@ webpackEmptyAsyncContext.id = 183;
 var map = {
 	"../pages/qr-code/qr-code.module": [
 		467,
-		1
+		2
 	],
 	"../pages/signature-pad-modal/signature-pad-modal.module": [
 		468,
 		0
+	],
+	"../pages/verifysignature/verifysignature.module": [
+		469,
+		1
 	]
 };
 function webpackAsyncContext(req) {
@@ -97,11 +101,15 @@ var HomePage = (function () {
         // Show the modal
         qrcodePad.present();
     };
+    HomePage.prototype.checkSignature = function () {
+        var signaturePad = this.modalCtrl.create('VerifysignaturePage');
+        signaturePad.present();
+    };
     return HomePage;
 }());
 HomePage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-        selector: 'page-home',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\home\home.html"*/'<ion-content padding>\n\n  <ion-grid style="height: 100%">\n\n    <ion-row>\n\n      <img *ngIf="signature" [src]="signature">\n\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  <button ion-button large full (click)="getSignature()">Get signature</button>\n\n  <button ion-button large full (click)="getQR()">Get QR-Code</button>\n\n</ion-footer>\n\n'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\home\home.html"*/
+        selector: 'page-home',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\home\home.html"*/'<ion-content padding>\n\n  <ion-grid style="height: 100%">\n\n    <ion-row>\n\n      <img *ngIf="signature" [src]="signature">\n\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  <button ion-button large full (click)="getSignature()">Add signature</button>\n\n  <button ion-button large full (click)="checkSignature()">Check signature</button>\n\n  <button ion-button large full (click)="getQR()">Get QR-Code</button>\n\n</ion-footer>\n\n'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\home\home.html"*/
     }),
     __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
 ], HomePage);
@@ -110,7 +118,7 @@ HomePage = __decorate([
 
 /***/ }),
 
-/***/ 275:
+/***/ 274:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -140,52 +148,23 @@ var RestProvider = (function () {
     function RestProvider(http, httpClient) {
         this.http = http;
         this.httpClient = httpClient;
-        this.basicURL = "https://103.48.80.41:7000";
+        this.basicURL = "http://103.48.80.41:1323";
         console.log('Hello RestProvider Provider');
     }
-    RestProvider.prototype.getUsers = function () {
-        var _this = this;
-        return new Promise(function (resolve) {
-            _this.http.get(_this.basicURL + '/getall').subscribe(function (data) {
-                resolve(data);
-            }, function (err) {
-                console.log(err);
-            });
-        });
+    RestProvider.prototype.getSignature = function (order_id) {
+        return this.http.get(this.basicURL + '/verify?order_id=' + order_id);
     };
-    // addTest(data){
-    //   var headers = new Headers();
-    //   headers.append("Accept", 'application/json');
-    //   headers.append('Content-Type','application/json');
-    //   headers.append('Access-Control-Allow-Origin', 'http://localhost:7000');
-    //   headers.append('Access-Control-Allow-Credentials', 'true');
-    //   const options = new RequestOptions({headers:headers});
-    //   var postData = {
-    //     "signature" : data
-    //   }
-    //   return new Promise((resolve, reject) => {
-    //     this.http.post(this.basicURL+'/testAdd', data,options)
-    //       .subscribe(res => {
-    //         resolve(res);
-    //       }, (err) => {
-    //         console.log("Fail to do");
-    //         console.log(err);
-    //       });
-    //   });
-    // }
     RestProvider.prototype.addsignature = function (signature) {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
         headers.append("Accept", 'application/json');
         headers.append('Content-Type', 'application/json');
-        headers.append('Access-Control-Allow-Origin', 'https://103.48.80.41:1323/addSign');
+        headers.append("Authorization", "Basic dGVzdDoxMjM0NTY3ODk=");
+        headers.append('Access-Control-Allow-Origin', '*');
         headers.append('Access-Control-Allow-Methods', 'POST');
-        headers.append("Access-Control-Allow-Headers", "X-PINGOTHER, Origin, X-Requested-With, Content-Type, Accept, Cache-Control, Pragma");
+        headers.append("Access-Control-Allow-Headers", "*");
         var options = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["d" /* RequestOptions */]({ headers: headers });
-        // var postData = {
-        //   "signature" : data
-        // }
         console.log("THis is test", JSON.stringify(signature));
-        return this.http.post("https://103.48.80.41:1323/addSign", signature, options);
+        return this.http.post(this.basicURL + '/addSign', signature, options);
     };
     return RestProvider;
 }());
@@ -226,9 +205,9 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__angular_http__ = __webpack_require__(227);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_component__ = __webpack_require__(446);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_home_home__ = __webpack_require__(269);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_rest_rest__ = __webpack_require__(275);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_rest_rest__ = __webpack_require__(274);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_ngx_qrcode2__ = __webpack_require__(447);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__ionic_native_barcode_scanner__ = __webpack_require__(274);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__ionic_native_barcode_scanner__ = __webpack_require__(275);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -266,7 +245,8 @@ AppModule = __decorate([
             __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["c" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_7__app_component__["a" /* MyApp */], {}, {
                 links: [
                     { loadChildren: '../pages/qr-code/qr-code.module#QrCodePageModule', name: 'QrCodePage', segment: 'qr-code', priority: 'low', defaultHistory: [] },
-                    { loadChildren: '../pages/signature-pad-modal/signature-pad-modal.module#SignaturePadModalPageModule', name: 'SignaturePadModalPage', segment: 'signature-pad-modal', priority: 'low', defaultHistory: [] }
+                    { loadChildren: '../pages/signature-pad-modal/signature-pad-modal.module#SignaturePadModalPageModule', name: 'SignaturePadModalPage', segment: 'signature-pad-modal', priority: 'low', defaultHistory: [] },
+                    { loadChildren: '../pages/verifysignature/verifysignature.module#VerifysignaturePageModule', name: 'VerifysignaturePage', segment: 'verifysignature', priority: 'low', defaultHistory: [] }
                 ]
             })
         ],
@@ -331,7 +311,7 @@ var MyApp = (function () {
 MyApp = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\app\app.html"*/'<ion-nav [root]="rootPage"></ion-nav>\n\n'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\app\app.html"*/
     }),
-    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]])
+    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]])
 ], MyApp);
 
 //# sourceMappingURL=app.component.js.map

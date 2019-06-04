@@ -29,7 +29,6 @@ export class SignaturePadModalPage {
 
   constructor( public viewCtrl: ViewController, 
     public restProvider: RestProvider ) {
-      this.getUsers();
     }
 
   ionViewDidLoad() {
@@ -38,21 +37,10 @@ export class SignaturePadModalPage {
     this.signaturePad.set( 'canvasHeight', this.content.nativeElement.offsetHeight );    
   }
 
-  save() {
-    // Get the image of the signature as a base64 encoded string
-    const base64Img = this.signaturePad.toDataURL();
-    this.base64textString = btoa(base64Img)
-    this.newSign.signature = btoa(base64Img)
-    this.newSign.order_id = this.data.order_ID;
-    this.newSign.list_order = this.data.list_Order;
-    this.restProvider.addsignature(this.newSign).subscribe(results =>{
-      console.log(results);
-    },err => {
-      console.log("Come there")
-      console.log(err);
-    });
-    this.viewCtrl.dismiss({ signature: base64Img });
-  }
+  // save() {
+  //   // Get the image of the signature as a base64 encoded string
+    
+  // }
 
   changelistener(evt:any){
     let image = evt.target.files[0];
@@ -74,13 +62,26 @@ export class SignaturePadModalPage {
   }
 
   getUsers(){
-		this.restProvider.getUsers().then(data =>{
-      console.log(data);
-    })
+		// this.restProvider.getUsers().then(data =>{
+    //   console.log(data);
+    // })
   }
 
   logForm(){
     console.log(this.data);
     console.log(this.base64textString);
+    const base64Img = this.signaturePad.toDataURL();
+    this.base64textString = btoa(base64Img)
+    console.log(atob(this.base64textString));
+    this.newSign.signature = btoa(base64Img)
+    this.newSign.order_id = this.data.order_ID;
+    this.newSign.list_order = this.imgOrder;
+    this.restProvider.addsignature(this.newSign).subscribe(results =>{
+      console.log(results);
+    },err => {
+      console.log("Come there")
+      console.log(err);
+    });
+    this.viewCtrl.dismiss({ signature: base64Img });
   }
 }

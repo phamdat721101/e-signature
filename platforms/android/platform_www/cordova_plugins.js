@@ -63,8 +63,8 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-screen-orientation": "2.0.2",
     "cordova-plugin-splashscreen": "4.0.3",
     "cordova-plugin-statusbar": "2.2.2",
-    "cordova-plugin-whitelist": "1.3.1",
     "ionic-plugin-keyboard": "2.2.1",
-    "phonegap-plugin-barcodescanner": "8.0.1"
+    "phonegap-plugin-barcodescanner": "8.0.1",
+    "cordova-plugin-whitelist": "1.3.3"
   };
 });

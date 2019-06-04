@@ -49,4 +49,9 @@ export class HomePage {
     qrcodePad.present();
   }
 
+  checkSignature(){
+    let signaturePad = this.modalCtrl.create( 'VerifysignaturePage' );
+    signaturePad.present();
+  }
+
 }

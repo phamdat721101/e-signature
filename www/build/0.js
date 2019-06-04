@@ -8,8 +8,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SignaturePadModalPageModule", function() { return SignaturePadModalPageModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__ = __webpack_require__(471);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__ = __webpack_require__(474);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__ = __webpack_require__(472);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__ = __webpack_require__(475);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -42,7 +42,7 @@ SignaturePadModalPageModule = __decorate([
 
 /***/ }),
 
-/***/ 469:
+/***/ 470:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -58,7 +58,7 @@ var SignaturePad = (function () {
         this.onEndEvent = new core_1.EventEmitter();
     }
     SignaturePad.prototype.ngAfterContentInit = function () {
-        var sp = __webpack_require__(472)['default'];
+        var sp = __webpack_require__(473)['default'];
         var canvas = this.elementRef.nativeElement.querySelector('canvas');
         if (this.options['canvasHeight']) {
             canvas.height = this.options['canvasHeight'];
@@ -157,17 +157,17 @@ exports.SignaturePad = SignaturePad;
 
 /***/ }),
 
-/***/ 471:
+/***/ 472:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SignaturePadModalPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__ = __webpack_require__(275);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__ = __webpack_require__(469);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__ = __webpack_require__(274);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__ = __webpack_require__(470);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__ = __webpack_require__(473);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__ = __webpack_require__(474);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -199,28 +199,15 @@ var SignaturePadModalPage = (function () {
             'canvasWidth': 500,
             'canvasHeight': 300
         };
-        this.getUsers();
     }
     SignaturePadModalPage.prototype.ionViewDidLoad = function () {
         // When the page has finished loading, resize the canvas to fit the screen
         this.signaturePad.set('canvasWidth', this.content.nativeElement.offsetWidth);
         this.signaturePad.set('canvasHeight', this.content.nativeElement.offsetHeight);
     };
-    SignaturePadModalPage.prototype.save = function () {
-        // Get the image of the signature as a base64 encoded string
-        var base64Img = this.signaturePad.toDataURL();
-        this.base64textString = btoa(base64Img);
-        this.newSign.signature = btoa(base64Img);
-        this.newSign.order_id = this.data.order_ID;
-        this.newSign.list_order = this.data.list_Order;
-        this.restProvider.addsignature(this.newSign).subscribe(function (results) {
-            console.log(results);
-        }, function (err) {
-            console.log("Come there");
-            console.log(err);
-        });
-        this.viewCtrl.dismiss({ signature: base64Img });
-    };
+    // save() {
+    //   // Get the image of the signature as a base64 encoded string
+    // }
     SignaturePadModalPage.prototype.changelistener = function (evt) {
         var image = evt.target.files[0];
         if (image) {
@@ -238,13 +225,26 @@ var SignaturePadModalPage = (function () {
         this.viewCtrl.dismiss({});
     };
     SignaturePadModalPage.prototype.getUsers = function () {
-        this.restProvider.getUsers().then(function (data) {
-            console.log(data);
-        });
+        // this.restProvider.getUsers().then(data =>{
+        //   console.log(data);
+        // })
     };
     SignaturePadModalPage.prototype.logForm = function () {
         console.log(this.data);
         console.log(this.base64textString);
+        var base64Img = this.signaturePad.toDataURL();
+        this.base64textString = btoa(base64Img);
+        console.log(atob(this.base64textString));
+        this.newSign.signature = btoa(base64Img);
+        this.newSign.order_id = this.data.order_ID;
+        this.newSign.list_order = this.imgOrder;
+        this.restProvider.addsignature(this.newSign).subscribe(function (results) {
+            console.log(results);
+        }, function (err) {
+            console.log("Come there");
+            console.log(err);
+        });
+        this.viewCtrl.dismiss({ signature: base64Img });
     };
     return SignaturePadModalPage;
 }());
@@ -259,9 +259,9 @@ __decorate([
 SignaturePadModalPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* IonicPage */])(),
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-        selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <form (ngSubmit)="logForm()">\n\n      <ion-item>\n\n        <ion-label>Todo</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Description</ion-label>\n\n        <ion-textarea [(ngModel)]="data.list_Order" name="description"></ion-textarea>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Upload File</ion-label>\n\n        <ion-input type="file" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>\n\n      </ion-item>\n\n      <signature-pad [options]="options" name="signature"></signature-pad>\n\n      <button ion-button type="submit" block>Add Todo</button>\n\n    </form>\n\n  </div>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  <button ion-button large (click)="save()">Save signature</button>\n\n  <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n</ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
+        selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <form (ngSubmit)="logForm()">\n\n      <ion-item>\n\n        <ion-label>OrderID</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Upload File</ion-label>\n\n        <ion-input type="file" [(ngModel)]="data.list_Order" name="description" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>\n\n      </ion-item>\n\n      <signature-pad [options]="options" name="signature"></signature-pad>\n\n      <button ion-button large type="submit">Save signature</button>\n\n      <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n    </form>\n\n  </div>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  \n\n</ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
     }),
-    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* ViewController */],
+    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ViewController */],
         __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__["a" /* RestProvider */]])
 ], SignaturePadModalPage);
 
@@ -269,7 +269,7 @@ SignaturePadModalPage = __decorate([
 
 /***/ }),
 
-/***/ 472:
+/***/ 473:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -880,7 +880,7 @@ SignaturePad.prototype.toData = function () {
 
 /***/ }),
 
-/***/ 473:
+/***/ 474:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -898,13 +898,13 @@ var UserSignature = (function () {
 
 /***/ }),
 
-/***/ 474:
+/***/ 475:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 var core_1 = __webpack_require__(0);
-var signature_pad_1 = __webpack_require__(469);
+var signature_pad_1 = __webpack_require__(470);
 var SignaturePadModule = (function () {
     function SignaturePadModule() {
     }

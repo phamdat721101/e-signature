@@ -2,24 +2,20 @@
   <div id="pad-container" #pad>
     <form (ngSubmit)="logForm()">
       <ion-item>
-        <ion-label>Todo</ion-label>
+        <ion-label>OrderID</ion-label>
         <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-label>Description</ion-label>
-        <ion-textarea [(ngModel)]="data.list_Order" name="description"></ion-textarea>
-      </ion-item>
-      <ion-item>
         <ion-label>Upload File</ion-label>
-        <ion-input type="file" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>
+        <ion-input type="file" [(ngModel)]="data.list_Order" name="description" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>
       </ion-item>
       <signature-pad [options]="options" name="signature"></signature-pad>
-      <button ion-button type="submit" block>Add Todo</button>
+      <button ion-button large type="submit">Save signature</button>
+      <button ion-button large color="danger" (click)="cancel()">Cancel</button>
     </form>
   </div>
 </ion-content>
 
 <ion-footer>
-  <button ion-button large (click)="save()">Save signature</button>
-  <button ion-button large color="danger" (click)="cancel()">Cancel</button>
+  
 </ion-footer>

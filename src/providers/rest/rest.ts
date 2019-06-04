@@ -11,52 +11,25 @@ import { UserSignature } from '../models/sign.model';
 */
 @Injectable()
 export class RestProvider {
-  basicURL : string="https://103.48.80.41:7000";
+  basicURL : string="http://103.48.80.41:1323";
   constructor(public http: Http, public httpClient: HttpClient) {
     console.log('Hello RestProvider Provider');
   }
-  getUsers(){
-    return new Promise(resolve =>{
-      this.http.get(this.basicURL+'/getall').subscribe(data =>{
-        resolve(data);
-      },err => {
-        console.log(err);
-      });
-    });
+  getSignature(order_id: string){
+    return this.http.get(this.basicURL+'/verify?order_id='+order_id);
   }
-  // addTest(data){
-  //   var headers = new Headers();
-  //   headers.append("Accept", 'application/json');
-  //   headers.append('Content-Type','application/json');
-  //   headers.append('Access-Control-Allow-Origin', 'http://localhost:7000');
-  //   headers.append('Access-Control-Allow-Credentials', 'true');
-  //   const options = new RequestOptions({headers:headers});
-  //   var postData = {
-  //     "signature" : data
-  //   }
-  //   return new Promise((resolve, reject) => {
-  //     this.http.post(this.basicURL+'/testAdd', data,options)
-  //       .subscribe(res => {
-  //         resolve(res);
-  //       }, (err) => {
-  //         console.log("Fail to do");
-  //         console.log(err);
-  //       });
-  //   });
-  // }
+  
   addsignature(signature: UserSignature){
     var headers = new Headers();
     headers.append("Accept", 'application/json');
     headers.append('Content-Type','application/json');
-    headers.append('Access-Control-Allow-Origin', 'https://103.48.80.41:1323/addSign');
+    headers.append("Authorization", "Basic dGVzdDoxMjM0NTY3ODk=");
+    headers.append('Access-Control-Allow-Origin', '*');
     headers.append('Access-Control-Allow-Methods', 'POST');
-    headers.append("Access-Control-Allow-Headers","X-PINGOTHER, Origin, X-Requested-With, Content-Type, Accept, Cache-Control, Pragma");
+    headers.append("Access-Control-Allow-Headers","*");
     const options = new RequestOptions({headers:headers});
-    // var postData = {
-    //   "signature" : data
-    // }
     console.log("THis is test",JSON.stringify(signature))
-    return this.http.post("https://103.48.80.41:1323/addSign",signature,options);
+    return this.http.post(this.basicURL+'/addSign',signature,options);
   }
 
 }
