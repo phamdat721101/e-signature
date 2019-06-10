@@ -1,8 +1,9 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { IonicPage, ViewController } from 'ionic-angular';
+import { Component, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { IonicPage, ViewController, LoadingController } from 'ionic-angular';
 import { RestProvider } from '../../providers/rest/rest';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 import { UserSignature } from '../../providers/models/sign.model';
+import Tesseract from 'tesseract.js';
 
 @IonicPage()
 @Component({
@@ -17,9 +18,19 @@ export class SignaturePadModalPage {
   base64textString: string = "";
   data = {
     order_ID: null,
-    list_Order: null
+    reciever: null,
+    sender: null,
+    list_Order: null,
+    desciption: null
   };
-  imgOrder : string = "";
+  imgOrder : any;
+  _zone: any;
+  _ocrIsLoaded: boolean = false;
+  brightness: number = 12;
+  contrast: number = 52;
+  unsharpMask: any = { radius: 100, strength: 2 };
+  hue: number = -100;
+  saturation: number = -100;
   // Initial sizes for the canvas
   private options = {
     'minWidth': 5,
@@ -28,7 +39,9 @@ export class SignaturePadModalPage {
   }
 
   constructor( public viewCtrl: ViewController, 
-    public restProvider: RestProvider ) {
+    public restProvider: RestProvider,
+    public loadingCtrl: LoadingController) {
+      this._zone = new NgZone({ enableLongStackTrace: false });
     }
 
   ionViewDidLoad() {
@@ -37,47 +50,52 @@ export class SignaturePadModalPage {
     this.signaturePad.set( 'canvasHeight', this.content.nativeElement.offsetHeight );    
   }
 
-  // save() {
-  //   // Get the image of the signature as a base64 encoded string
-    
-  // }
-
   changelistener(evt:any){
     let image = evt.target.files[0];
     if (image) {
       var reader = new FileReader();
       reader.onload = this._handleReaderLoaded.bind(this);
-      reader.readAsBinaryString(image);
+      reader.readAsDataURL(image);
+      /*get text from image-------------*/
+      let loader = this.loadingCtrl.create({
+        content: 'Please wait...'
+      });
+      loader.present();
+      Tesseract.recognize(image, {}).progress((progress) =>{
+        this._zone.run(() => {
+          loader.setContent(`${progress.status}: ${Math.floor(progress.progress * 100)}%`)
+        })
+      }).then((tesseractResult) => {
+        this._zone.run(() => {
+          loader.dismissAll();
+          this.data.desciption = tesseractResult.text;
+        });
+      });
+      /*---------------------------------------*/
     }
   }
 
-  _handleReaderLoaded(readerEvt) {
+  _handleReaderLoaded(readerEvt: any) {
     var binaryString = readerEvt.target.result;
+    console.log(binaryString);
     this.imgOrder = btoa(binaryString);
-    console.log(this.imgOrder);
   }
 
   cancel() {
     this.viewCtrl.dismiss({});
   }
 
-  getUsers(){
-		// this.restProvider.getUsers().then(data =>{
-    //   console.log(data);
-    // })
-  }
-
   logForm(){
-    console.log(this.data);
-    console.log(this.base64textString);
     const base64Img = this.signaturePad.toDataURL();
     this.base64textString = btoa(base64Img)
-    console.log(atob(this.base64textString));
     this.newSign.signature = btoa(base64Img)
     this.newSign.order_id = this.data.order_ID;
     this.newSign.list_order = this.imgOrder;
+    this.newSign.description = this.data.desciption;
+    this.newSign.reciever = this.data.reciever;
+    this.newSign.sender = this.data.sender;
     this.restProvider.addsignature(this.newSign).subscribe(results =>{
-      console.log(results);
+      alert("Sign successfully");
     },err => {
       console.log("Come there")
       console.log(err);

@@ -1,12 +1,6 @@
-<!--
-  Generated template for the VerifysignaturePage page.
-
-  See http://ionicframework.com/docs/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
   <ion-navbar>
-    <ion-title>verifysignature</ion-title>
+    <ion-title>Verifysignature</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -17,9 +11,72 @@
         <ion-label>OrderID</ion-label>
         <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>
       </ion-item>
-      <button ion-button type="submit" block>Check signature</button>
+      <button ion-button type="submit" block data-target="#addParticipantModal">Check signature</button>
       <button ion-button color="danger" (click)="cancel()">Cancel</button>
     </form>
-    <img [src]="imgSignature" >
   </div>
+  <div class="container" id="imgBill">
+    <div class="row">
+      <div class="span4">
+        <img [src]="imgInvoice" class="img-rounded logo">
+        <address>
+            <strong>Hồ Chí Minh</strong><br>           
+        </address>
+      </div>
+      <div class="span4 well">
+        <table class="invoice-head">
+          <tbody>
+            <tr>
+              <td class="pull-right"><strong>Customer #</strong></td>
+              <td>{{result.reciever}}</td>
+            </tr>
+            <tr>
+              <td class="pull-right"><strong>Invoice #</strong></td>
+              <td>{{result.order_id}}</td>
+            </tr>
+            <tr>
+              <td class="pull-right"><strong>Date</strong></td>
+              <td>10-05-2019</td>
+            </tr>            
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span8">
+        <h2>Invoice</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span8 well invoice-body">
+        <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Signature</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>{{result.description}}</td>
+          <td>10/5/2019</td>
+          <td>$1000.00</td>
+          <td><img [src]="imgSignature"></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span8 well invoice-thank">
+        <h5 style="text-align:center;">Thank You!</h5>
+      </div>
+    </div>    
+  </div>
+  <button (click)="printImg()">Print Invoice</button> 
+  <span>
+    <a href="{{imageInvoice}}" download="pqd.jpg" id="dwnldLink">DownLoad</a>
+  </span>
 </ion-content>

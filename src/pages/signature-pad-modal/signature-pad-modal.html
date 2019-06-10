@@ -6,16 +6,21 @@
         <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>
       </ion-item>
       <ion-item>
+        <ion-label>Người nhận</ion-label>
+        <ion-input type="text" [(ngModel)]="data.reciever" name="title"></ion-input>
+      </ion-item>
+      <ion-item>
+          <ion-label>Người gửi</ion-label>
+          <ion-input type="text" [(ngModel)]="data.sender" name="title"></ion-input>
+      </ion-item>
+      <ion-item>
         <ion-label>Upload File</ion-label>
         <ion-input type="file" [(ngModel)]="data.list_Order" name="description" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>
       </ion-item>
       <signature-pad [options]="options" name="signature"></signature-pad>
       <button ion-button large type="submit">Save signature</button>
-      <button ion-button large color="danger" (click)="cancel()">Cancel</button>
     </form>
+    <button ion-button large color="danger" (click)="cancel()">Cancel</button>
   </div>
 </ion-content>
-
-<ion-footer>
-  
-</ion-footer>
+<ion-footer></ion-footer>

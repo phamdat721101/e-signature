@@ -8,8 +8,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SignaturePadModalPageModule", function() { return SignaturePadModalPageModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__ = __webpack_require__(472);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__ = __webpack_require__(475);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__ = __webpack_require__(474);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__ = __webpack_require__(481);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -21,22 +21,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 
 
 
-var SignaturePadModalPageModule = (function () {
+var SignaturePadModalPageModule = /** @class */ (function () {
     function SignaturePadModalPageModule() {
     }
+    SignaturePadModalPageModule = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["NgModule"])({
+            declarations: [
+                __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__["a" /* SignaturePadModalPage */],
+            ],
+            imports: [
+                __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__["SignaturePadModule"],
+                __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["e" /* IonicPageModule */].forChild(__WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__["a" /* SignaturePadModalPage */]),
+            ],
+        })
+    ], SignaturePadModalPageModule);
     return SignaturePadModalPageModule;
 }());
-SignaturePadModalPageModule = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["NgModule"])({
-        declarations: [
-            __WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__["a" /* SignaturePadModalPage */],
-        ],
-        imports: [
-            __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad__["SignaturePadModule"],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["e" /* IonicPageModule */].forChild(__WEBPACK_IMPORTED_MODULE_2__signature_pad_modal__["a" /* SignaturePadModalPage */]),
-        ],
-    })
-], SignaturePadModalPageModule);
 
 //# sourceMappingURL=signature-pad-modal.module.js.map
 
@@ -58,7 +58,7 @@ var SignaturePad = (function () {
         this.onEndEvent = new core_1.EventEmitter();
     }
     SignaturePad.prototype.ngAfterContentInit = function () {
-        var sp = __webpack_require__(473)['default'];
+        var sp = __webpack_require__(475)['default'];
         var canvas = this.elementRef.nativeElement.querySelector('canvas');
         if (this.options['canvasHeight']) {
             canvas.height = this.options['canvasHeight'];
@@ -157,7 +157,198 @@ exports.SignaturePad = SignaturePad;
 
 /***/ }),
 
+/***/ 471:
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process) {var defaultOptions = {
+    // workerPath: 'https://cdn.jsdelivr.net/gh/naptha/tesseract.js@0.2.0/dist/worker.js',
+    corePath: 'https://cdn.jsdelivr.net/gh/naptha/tesseract.js-core@0.1.0/index.js',    
+    langPath: 'https://tessdata.projectnaptha.com/3.02/',
+}
+
+if (process.env.TESS_ENV === "development") {
+    console.debug('Using Development Configuration')
+    defaultOptions.workerPath = location.protocol + '//' + location.host + '/dist/worker.dev.js?nocache=' + Math.random().toString(36).slice(3)
+}else{
+    var version = __webpack_require__(472).version;
+    defaultOptions.workerPath = 'https://cdn.jsdelivr.net/gh/naptha/tesseract.js@' + version + '/dist/worker.js'
+}
+
+exports.defaultOptions = defaultOptions;
+
+
+exports.spawnWorker = function spawnWorker(instance, workerOptions){
+    if(Blob && URL){
+        var blob = new Blob(['importScripts("' + workerOptions.workerPath + '");'], {
+            type: 'application/javascript'
+        });
+        var worker = new Worker(URL.createObjectURL(blob));
+    }else{
+        var worker = new Worker(workerOptions.workerPath)
+    }
+
+    worker.onmessage = function(e){
+        var packet = e.data;
+        instance._recv(packet)
+    }
+    return worker
+}
+
+exports.terminateWorker = function(instance){
+    instance.worker.terminate()
+}
+
+exports.sendPacket = function sendPacket(instance, packet){
+    loadImage(packet.payload.image, function(img){
+        packet.payload.image = img
+        instance.worker.postMessage(packet) 
+    })
+}
+
+
+function loadImage(image, cb){
+    if(typeof image === 'string'){
+        if(/^\#/.test(image)){
+            // element css selector
+            return loadImage(document.querySelector(image), cb)
+        }else if(/(blob|data)\:/.test(image)){
+            // data url
+            var im = new Image
+            im.src = image;
+            im.onload = e => loadImage(im, cb);
+            im.onerror = e => { throw e; };
+            return
+        }else{
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', image, true)
+            xhr.responseType = "blob";
+            
+            xhr.onload = e => {
+                if (xhr.status >= 400){
+                  throw new Error('Fail to get image as Blob');
+                }else{
+                    loadImage(xhr.response, cb);
+                }
+            };
+            xhr.onerror = e => { throw e; }; 
+            
+            xhr.send(null)
+            return
+        }
+    }else if(image instanceof File){
+        // files
+        var fr = new FileReader()
+        fr.onload = e => loadImage(fr.result, cb);
+        fr.onerror = e => { throw e; }; 
+        fr.readAsDataURL(image)
+        return
+    }else if(image instanceof Blob){
+        return loadImage(URL.createObjectURL(image), cb)
+    }else if(image.getContext){
+        // canvas element
+        return loadImage(image.getContext('2d'), cb)
+    }else if(image.tagName == "IMG" || image.tagName == "VIDEO"){
+        // image element or video element
+        var c = document.createElement('canvas');
+        c.width  = image.naturalWidth  || image.videoWidth;
+        c.height = image.naturalHeight || image.videoHeight;
+        var ctx = c.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        return loadImage(ctx, cb)
+    }else if(image.getImageData){
+        // canvas context
+        var data = image.getImageData(0, 0, image.canvas.width, image.canvas.height);
+        return loadImage(data, cb)
+    }else{
+        return cb(image)
+    }
+    throw new Error('Missing return in loadImage cascade')
+
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(478)))
+
+/***/ }),
+
 /***/ 472:
+/***/ (function(module, exports) {
+
+module.exports = {
+	"_from": "tesseract.js",
+	"_id": "tesseract.js@1.0.19",
+	"_inBundle": false,
+	"_integrity": "sha512-UXnCd2GkDOuVwPYv8MryzDwXEPLJ/BjEuT76PWzVC8XhZbsChRkpoiKDSGDbZ2BW2rwg1yBWJ0joSdCTw1umBA==",
+	"_location": "/tesseract.js",
+	"_phantomChildren": {},
+	"_requested": {
+		"type": "tag",
+		"registry": true,
+		"raw": "tesseract.js",
+		"name": "tesseract.js",
+		"escapedName": "tesseract.js",
+		"rawSpec": "",
+		"saveSpec": null,
+		"fetchSpec": "latest"
+	},
+	"_requiredBy": [
+		"#USER",
+		"/"
+	],
+	"_resolved": "https://registry.npmjs.org/tesseract.js/-/tesseract.js-1.0.19.tgz",
+	"_shasum": "f66a9accef1aa933ec7e574d1bb3205f7d2aef65",
+	"_spec": "tesseract.js",
+	"_where": "E:\\GHN\\Projects\\ionic-signature-pad",
+	"author": "",
+	"browser": {
+		"./src/node/index.js": "./src/browser/index.js"
+	},
+	"bugs": {
+		"url": "https://github.com/naptha/tesseract.js/issues"
+	},
+	"bundleDependencies": false,
+	"dependencies": {
+		"file-type": "^3.8.0",
+		"is-url": "1.2.2",
+		"isomorphic-fetch": "^2.2.1",
+		"jpeg-js": "^0.2.0",
+		"level-js": "^2.2.4",
+		"node-fetch": "^1.6.3",
+		"object-assign": "^4.1.0",
+		"png.js": "^0.2.1",
+		"tesseract.js-core": "^1.0.2"
+	},
+	"deprecated": false,
+	"description": "Pure Javascript Multilingual OCR",
+	"devDependencies": {
+		"babel-preset-es2015": "^6.16.0",
+		"babelify": "^7.3.0",
+		"browserify": "^13.1.0",
+		"concurrently": "^3.1.0",
+		"envify": "^3.4.1",
+		"http-server": "^0.9.0",
+		"pako": "^1.0.3",
+		"uglify-js": "^3.4.9",
+		"watchify": "^3.7.0"
+	},
+	"homepage": "https://github.com/naptha/tesseract.js",
+	"license": "Apache-2.0",
+	"main": "src/index.js",
+	"name": "tesseract.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/naptha/tesseract.js.git"
+	},
+	"scripts": {
+		"build": "browserify src/index.js -t [ babelify --presets [ es2015 ] ] -o dist/tesseract.js --standalone Tesseract && browserify src/browser/worker.js -t [ babelify --presets [ es2015 ] ] -o dist/worker.js && uglifyjs dist/tesseract.js --source-map -o dist/tesseract.min.js && uglifyjs dist/worker.js --source-map -o dist/worker.min.js",
+		"release": "npm run build && git commit -am 'new release' && git push && git tag `jq -r '.version' package.json` && git push origin --tags && npm publish",
+		"start": "concurrently --kill-others \"watchify src/index.js  -t [ envify --TESS_ENV development ] -t [ babelify --presets [ es2015 ] ] -o dist/tesseract.dev.js --standalone Tesseract\" \"watchify src/browser/worker.js  -t [ envify --TESS_ENV development ] -t [ babelify --presets [ es2015 ] ] -o dist/worker.dev.js\" \"http-server -p 7355\""
+	},
+	"version": "1.0.19"
+};
+
+/***/ }),
+
+/***/ 474:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -167,7 +358,9 @@ exports.SignaturePad = SignaturePad;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__ = __webpack_require__(274);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__ = __webpack_require__(470);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__ = __webpack_require__(474);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__ = __webpack_require__(476);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_tesseract_js__ = __webpack_require__(477);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_tesseract_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_tesseract_js__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -182,94 +375,114 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-var SignaturePadModalPage = (function () {
-    function SignaturePadModalPage(viewCtrl, restProvider) {
+
+var SignaturePadModalPage = /** @class */ (function () {
+    function SignaturePadModalPage(viewCtrl, restProvider, loadingCtrl) {
         this.viewCtrl = viewCtrl;
         this.restProvider = restProvider;
+        this.loadingCtrl = loadingCtrl;
         this.newSign = new __WEBPACK_IMPORTED_MODULE_4__providers_models_sign_model__["a" /* UserSignature */]({});
         this.base64textString = "";
         this.data = {
             order_ID: null,
-            list_Order: null
+            reciever: null,
+            sender: null,
+            list_Order: null,
+            desciption: null
         };
-        this.imgOrder = "";
+        this._ocrIsLoaded = false;
+        this.brightness = 12;
+        this.contrast = 52;
+        this.unsharpMask = { radius: 100, strength: 2 };
+        this.hue = -100;
+        this.saturation = -100;
         // Initial sizes for the canvas
         this.options = {
             'minWidth': 5,
             'canvasWidth': 500,
             'canvasHeight': 300
         };
+        this._zone = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["NgZone"]({ enableLongStackTrace: false });
     }
     SignaturePadModalPage.prototype.ionViewDidLoad = function () {
         // When the page has finished loading, resize the canvas to fit the screen
         this.signaturePad.set('canvasWidth', this.content.nativeElement.offsetWidth);
         this.signaturePad.set('canvasHeight', this.content.nativeElement.offsetHeight);
     };
-    // save() {
-    //   // Get the image of the signature as a base64 encoded string
-    // }
     SignaturePadModalPage.prototype.changelistener = function (evt) {
+        var _this = this;
         var image = evt.target.files[0];
         if (image) {
             var reader = new FileReader();
             reader.onload = this._handleReaderLoaded.bind(this);
-            reader.readAsBinaryString(image);
+            reader.readAsDataURL(image);
+            /*get text from image-------------*/
+            var loader_1 = this.loadingCtrl.create({
+                content: 'Please wait...'
+            });
+            loader_1.present();
+            __WEBPACK_IMPORTED_MODULE_5_tesseract_js___default.a.recognize(image, {}).progress(function (progress) {
+                _this._zone.run(function () {
+                    loader_1.setContent(progress.status + ": " + Math.floor(progress.progress * 100) + "%");
+                });
+            }).then(function (tesseractResult) {
+                _this._zone.run(function () {
+                    loader_1.dismissAll();
+                    _this.data.desciption = tesseractResult.text;
+                });
+            });
+            /*---------------------------------------*/
         }
     };
     SignaturePadModalPage.prototype._handleReaderLoaded = function (readerEvt) {
         var binaryString = readerEvt.target.result;
+        console.log(binaryString);
         this.imgOrder = btoa(binaryString);
-        console.log(this.imgOrder);
     };
     SignaturePadModalPage.prototype.cancel = function () {
         this.viewCtrl.dismiss({});
     };
-    SignaturePadModalPage.prototype.getUsers = function () {
-        // this.restProvider.getUsers().then(data =>{
-        //   console.log(data);
-        // })
-    };
     SignaturePadModalPage.prototype.logForm = function () {
-        console.log(this.data);
-        console.log(this.base64textString);
         var base64Img = this.signaturePad.toDataURL();
         this.base64textString = btoa(base64Img);
-        console.log(atob(this.base64textString));
         this.newSign.signature = btoa(base64Img);
         this.newSign.order_id = this.data.order_ID;
         this.newSign.list_order = this.imgOrder;
+        this.newSign.description = this.data.desciption;
+        this.newSign.reciever = this.data.reciever;
+        this.newSign.sender = this.data.sender;
         this.restProvider.addsignature(this.newSign).subscribe(function (results) {
-            console.log(results);
+            alert("Sign successfully");
         }, function (err) {
             console.log("Come there");
             console.log(err);
         });
         this.viewCtrl.dismiss({ signature: base64Img });
     };
+    __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__["SignaturePad"]),
+        __metadata("design:type", typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__["SignaturePad"] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__["SignaturePad"]) === "function" && _a || Object)
+    ], SignaturePadModalPage.prototype, "signaturePad", void 0);
+    __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])('pad', { read: __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] }),
+        __metadata("design:type", typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== "undefined" && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === "function" && _b || Object)
+    ], SignaturePadModalPage.prototype, "content", void 0);
+    SignaturePadModalPage = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* IonicPage */])(),
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+            selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <form (ngSubmit)="logForm()">\n\n      <ion-item>\n\n        <ion-label>OrderID</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Người nhận</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.reciever" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n          <ion-label>Người gửi</ion-label>\n\n          <ion-input type="text" [(ngModel)]="data.sender" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Upload File</ion-label>\n\n        <ion-input type="file" [(ngModel)]="data.list_Order" name="description" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>\n\n      </ion-item>\n\n      <signature-pad [options]="options" name="signature"></signature-pad>\n\n      <button ion-button large type="submit">Save signature</button>\n\n    </form>\n\n    <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n  </div>\n\n</ion-content>\n\n<ion-footer></ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
+        }),
+        __metadata("design:paramtypes", [typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ViewController */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__["a" /* RestProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__["a" /* RestProvider */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* LoadingController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* LoadingController */]) === "function" && _e || Object])
+    ], SignaturePadModalPage);
     return SignaturePadModalPage;
+    var _a, _b, _c, _d, _e;
 }());
-__decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__["SignaturePad"]),
-    __metadata("design:type", __WEBPACK_IMPORTED_MODULE_3_angular2_signaturepad_signature_pad__["SignaturePad"])
-], SignaturePadModalPage.prototype, "signaturePad", void 0);
-__decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])('pad', { read: __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] }),
-    __metadata("design:type", __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"])
-], SignaturePadModalPage.prototype, "content", void 0);
-SignaturePadModalPage = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["d" /* IonicPage */])(),
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-        selector: 'page-signature-pad-modal',template:/*ion-inline-start:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/'<ion-content>\n\n  <div id="pad-container" #pad>\n\n    <form (ngSubmit)="logForm()">\n\n      <ion-item>\n\n        <ion-label>OrderID</ion-label>\n\n        <ion-input type="text" [(ngModel)]="data.order_ID" name="title"></ion-input>\n\n      </ion-item>\n\n      <ion-item>\n\n        <ion-label>Upload File</ion-label>\n\n        <ion-input type="file" [(ngModel)]="data.list_Order" name="description" id="upload" accept="image/*"  (change)="changelistener($event)"></ion-input>\n\n      </ion-item>\n\n      <signature-pad [options]="options" name="signature"></signature-pad>\n\n      <button ion-button large type="submit">Save signature</button>\n\n      <button ion-button large color="danger" (click)="cancel()">Cancel</button>\n\n    </form>\n\n  </div>\n\n</ion-content>\n\n\n\n<ion-footer>\n\n  \n\n</ion-footer>'/*ion-inline-end:"E:\GHN\Projects\ionic-signature-pad\src\pages\signature-pad-modal\signature-pad-modal.html"*/,
-    }),
-    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ViewController */],
-        __WEBPACK_IMPORTED_MODULE_2__providers_rest_rest__["a" /* RestProvider */]])
-], SignaturePadModalPage);
 
 //# sourceMappingURL=signature-pad-modal.js.map
 
 /***/ }),
 
-/***/ 473:
+/***/ 475:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -880,16 +1093,19 @@ SignaturePad.prototype.toData = function () {
 
 /***/ }),
 
-/***/ 474:
+/***/ 476:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return UserSignature; });
-var UserSignature = (function () {
+var UserSignature = /** @class */ (function () {
     function UserSignature(data) {
         this.signature = data.signature;
         this.list_order = data.list_order;
         this.order_id = data.order_id;
+        this.description = data.description;
+        this.reciever = data.reciever;
+        this.sender = data.sender;
     }
     return UserSignature;
 }());
@@ -898,7 +1114,437 @@ var UserSignature = (function () {
 
 /***/ }),
 
-/***/ 475:
+/***/ 477:
+/***/ (function(module, exports, __webpack_require__) {
+
+const adapter = __webpack_require__(471)
+const circularize = __webpack_require__(479)
+const TesseractJob = __webpack_require__(480);
+const version = __webpack_require__(472).version;
+
+const create = function(workerOptions = {}){
+	var worker = new TesseractWorker(Object.assign({}, adapter.defaultOptions, workerOptions));
+	worker.create = create;
+	worker.version = version;
+	return worker;
+}
+
+class TesseractWorker {
+	constructor(workerOptions){
+		this.worker = null;
+		this.workerOptions = workerOptions;
+		this._currentJob = null;
+		this._queue = [];
+	}
+
+	recognize(image, options = {}){
+		return this._delay(job => {
+			if (typeof options === 'string') options = {lang: options}
+			options.lang = options.lang || 'eng';
+
+			job._send('recognize', { image, options, workerOptions: this.workerOptions });
+		})
+	}
+	detect(image, options = {}){
+		return this._delay(job => {
+			job._send('detect', { image, options, workerOptions: this.workerOptions });
+		})
+	}
+
+	terminate(){
+		if(this.worker) adapter.terminateWorker(this);
+		this.worker = null;
+		this._currentJob = null;
+		this._queue = [];
+	}
+
+	_delay(fn){
+		if(!this.worker) this.worker = adapter.spawnWorker(this, this.workerOptions);
+
+		var job = new TesseractJob(this);
+		this._queue.push(e => {
+			this._queue.shift();
+			this._currentJob = job;
+			fn(job);
+		});
+		if(!this._currentJob) this._dequeue();
+		return job;
+	}
+
+	_dequeue(){
+		this._currentJob = null;
+		if(this._queue.length){
+			this._queue[0]();
+		}
+	}
+
+	_recv(packet){
+        if(packet.status === 'resolve' && packet.action === 'recognize'){
+            packet.data = circularize(packet.data);
+        }
+
+		if(this._currentJob.id === packet.jobId){
+			this._currentJob._handle(packet)
+		} else {
+			console.warn('Job ID ' + packet.jobId + ' not known.')
+		}
+	}
+}
+
+module.exports = create();
+
+
+/***/ }),
+
+/***/ 478:
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+
+/***/ 479:
+/***/ (function(module, exports) {
+
+// The result of dump.js is a big JSON tree
+// which can be easily serialized (for instance
+// to be sent from a webworker to the main app
+// or through Node's IPC), but we want
+// a (circular) DOM-like interface for walking
+// through the data. 
+
+module.exports = function circularize(page){
+    page.paragraphs = []
+    page.lines = []
+    page.words = []
+    page.symbols = []
+
+    page.blocks.forEach(function(block){
+        block.page = page;
+
+        block.lines = []
+        block.words = []
+        block.symbols = []
+
+        block.paragraphs.forEach(function(para){
+            para.block = block;
+            para.page = page;
+
+            para.words = []
+            para.symbols = []
+            
+            para.lines.forEach(function(line){
+                line.paragraph = para;
+                line.block = block;
+                line.page = page;
+
+                line.symbols = []
+
+                line.words.forEach(function(word){
+                    word.line = line;
+                    word.paragraph = para;
+                    word.block = block;
+                    word.page = page;
+                    word.symbols.forEach(function(sym){
+                        sym.word = word;
+                        sym.line = line;
+                        sym.paragraph = para;
+                        sym.block = block;
+                        sym.page = page;
+                        
+                        sym.line.symbols.push(sym)
+                        sym.paragraph.symbols.push(sym)
+                        sym.block.symbols.push(sym)
+                        sym.page.symbols.push(sym)
+                    })
+                    word.paragraph.words.push(word)
+                    word.block.words.push(word)
+                    word.page.words.push(word)
+                })
+                line.block.lines.push(line)
+                line.page.lines.push(line)
+            })
+            para.page.paragraphs.push(para)
+        })
+    })
+    return page
+}
+
+/***/ }),
+
+/***/ 480:
+/***/ (function(module, exports, __webpack_require__) {
+
+const adapter = __webpack_require__(471)
+
+let jobCounter = 0;
+
+module.exports = class TesseractJob {
+    constructor(instance){
+        this.id = 'Job-' + (++jobCounter) + '-' + Math.random().toString(16).slice(3, 8)
+
+        this._instance = instance;
+        this._resolve = []
+        this._reject = []
+        this._progress = []
+        this._finally = []
+    }
+
+    then(resolve, reject){
+        if(this._resolve.push){
+            this._resolve.push(resolve) 
+        }else{
+            resolve(this._resolve)
+        }
+
+        if(reject) this.catch(reject);
+        return this;
+    }
+    catch(reject){
+        if(this._reject.push){
+            this._reject.push(reject) 
+        }else{
+            reject(this._reject)
+        }
+        return this;
+    }
+    progress(fn){
+        this._progress.push(fn)
+        return this;
+    }
+    finally(fn) {
+        this._finally.push(fn)
+        return this;  
+    }
+    _send(action, payload){
+        adapter.sendPacket(this._instance, {
+            jobId: this.id,
+            action: action,
+            payload: payload
+        })
+    }
+
+    _handle(packet){
+        var data = packet.data;
+        let runFinallyCbs = false;
+
+        if(packet.status === 'resolve'){
+            if(this._resolve.length === 0) console.log(data);
+            this._resolve.forEach(fn => {
+                var ret = fn(data);
+                if(ret && typeof ret.then == 'function'){
+                    console.warn('TesseractJob instances do not chain like ES6 Promises. To convert it into a real promise, use Promise.resolve.')
+                }
+            })
+            this._resolve = data;
+            this._instance._dequeue()
+            runFinallyCbs = true;
+        }else if(packet.status === 'reject'){
+            if(this._reject.length === 0) console.error(data);
+            this._reject.forEach(fn => fn(data))
+            this._reject = data;
+            this._instance._dequeue()
+            runFinallyCbs = true;
+        }else if(packet.status === 'progress'){
+            this._progress.forEach(fn => fn(data))
+        }else{
+            console.warn('Message type unknown', packet.status)
+        }
+
+        if (runFinallyCbs) {
+            this._finally.forEach(fn => fn(data));
+        }
+    }
+}
+
+
+/***/ }),
+
+/***/ 481:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
