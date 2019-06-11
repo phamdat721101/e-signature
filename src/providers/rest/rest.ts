@@ -11,7 +11,7 @@ import { UserSignature } from '../models/sign.model';
 */
 @Injectable()
 export class RestProvider {
-  basicURL : string="http://localhost:1323";
+  basicURL : string="http://103.48.80.41:1323";
   constructor(public http: Http, public httpClient: HttpClient) {
     console.log('Hello RestProvider Provider');
   }
