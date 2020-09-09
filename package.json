@@ -45,7 +45,7 @@
     "html-to-image": "^0.1.0",
     "html2canvas": "^1.0.0-rc.3",
     "http": "0.0.0",
-    "http-proxy": "^1.17.0",
+    "http-proxy": "^1.18.1",
     "ionic-angular": "3.6.1",
     "ionicons": "3.0.0",
     "jquery": "^3.4.1",
